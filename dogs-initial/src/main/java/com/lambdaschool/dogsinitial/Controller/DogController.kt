@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.ModelAndView
+import javax.servlet.http.HttpServletRequest
 
 @RestController
 @RequestMapping("/dogs")
@@ -35,9 +36,9 @@ class DogController {
 
     // localhost:8080/dogs.html/{id}
     @GetMapping(value = ["/{id}"])
-    fun getDogDetail(@PathVariable id: Long): ResponseEntity<*> {
+    fun getDogDetail(@PathVariable id: Long, request: HttpServletRequest): ResponseEntity<*> {
         logger.info("/dogs/$id has been accessed")
-        val message = MessageDetails("/dogs/$id has been accessed", 7, true)
+        val message = MessageDetails("${request.requestURI} has been accessed", 7, true)
         rt?.convertAndSend(DogsinitialApplication.QUEUE_NAME_HIGH , message)
         val rtnDog = DogsinitialApplication.getOurDogList().findDog(CheckDog { d -> d.id == id }) ?: throw ResourceNotFoundException(message = "Dog with id $id cannot be found", cause = null)
         return ResponseEntity<Dog>(rtnDog, HttpStatus.OK)
