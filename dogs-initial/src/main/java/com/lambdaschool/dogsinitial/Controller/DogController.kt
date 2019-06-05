@@ -4,6 +4,8 @@ import com.lambdaschool.dogsinitial.CheckDog
 import com.lambdaschool.dogsinitial.Model.Dog
 import com.lambdaschool.dogsinitial.DogsinitialApplication
 import com.lambdaschool.dogsinitial.Exception.ResourceNotFoundException
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -15,7 +17,11 @@ import org.springframework.web.servlet.ModelAndView
 @RestController
 @RequestMapping("/dogs")
 class DogController {
-    // localhost:8080/dogs.html/dogs.html
+
+    val logger: Logger = LoggerFactory.getLogger(DogController::class.java)
+
+
+            // localhost:8080/dogs.html/dogs.html
     val allDogs: ResponseEntity<*>
         @GetMapping(value = ["/dogs"])
         get() = ResponseEntity(DogsinitialApplication.getOurDogList().dogList, HttpStatus.OK)
@@ -24,6 +30,7 @@ class DogController {
     // localhost:8080/dogs.html/{id}
     @GetMapping(value = ["/{id}"])
     fun getDogDetail(@PathVariable id: Long): ResponseEntity<*> {
+        logger.info("/dogs/$id has been accessed")
         val rtnDog = DogsinitialApplication.getOurDogList().findDog(CheckDog { d -> d.id == id }) ?: throw ResourceNotFoundException(message = "Dog with id $id cannot be found", cause = null)
         return ResponseEntity<Dog>(rtnDog, HttpStatus.OK)
     }
@@ -31,6 +38,7 @@ class DogController {
     // localhost:8080/dogs.html/breeds/{breed}
     @GetMapping(value = ["/breeds/{breed}"])
     fun getDogBreeds(@PathVariable breed: String): ResponseEntity<*> {
+        logger.info("/dogs/breeds/$breed has been accessed")
 //        val rtnDogs = DogsinitialApplication.getOurDogList().findDogs({ d -> d.getBreed().toUpperCase().equals(breed.toUpperCase()) })
         val rtnDogs = DogsinitialApplication.getOurDogList().findDogs(CheckDog { d -> d.breed.toUpperCase() == breed.toUpperCase() })
         if(rtnDogs.isEmpty()){
@@ -41,6 +49,7 @@ class DogController {
 
     @GetMapping(value = ["/breedtable"])
     fun getDogBreedTable():ModelAndView{
+        logger.info("dogs/breedtabe has been accessed")
         val mav: ModelAndView = ModelAndView("dogs")
         mav.addObject("dogList", DogsinitialApplication.getOurDogList().dogList)
 
@@ -49,6 +58,7 @@ class DogController {
 
     @GetMapping(value = ["/breedtable/apartments"])
     fun getDogsForApartments():ModelAndView{
+        logger.info("/dogs/breedtable/apartments has been accessed")
         val mav: ModelAndView = ModelAndView("dogsForApartments")
         mav.addObject("dogList", DogsinitialApplication.getOurDogList().dogList.filter { dog -> dog.isApartmentSuitable })
 
